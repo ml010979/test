@@ -1,0 +1,27 @@
+        prApproveHeader : function () {
+            this.Uname = "";
+            this.NAVPRAPPROVE = [];
+        },
+
+        seApproveHeader : function () {
+            this.IUname = "";
+            this.NAVESSRREL = [];            
+        },        
+
+        prApproveLine : function () {
+            this.Banfn = "";
+            this.Bnfpo = "";
+            this.Frgst = "";
+            this.Ebeln = "";
+            this.Ebelp = "";
+            this.Statu = "";
+        },
+
+        seApproveLine : function () {
+            this.Lblni = "";
+            this.Ebeln = "";
+            this.Ebelp = "";
+            this.Frgsx = "";
+            this.Stobl = "";
+            this.Statu = "";         
+        },
