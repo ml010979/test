@@ -3,12 +3,12 @@
                 sUrl = this.gProcessKey === Constants.PROCESS_PR ? Constants.URL_PRAPPROVE : Constants.URL_SEAPPROVE,
                 sField1 = this.gProcessKey === Constants.PROCESS_PR ? "Banfn" : "Lblni",
                 sField2 = this.gProcessKey === Constants.PROCESS_PR ? "Bnfpo" : "Ebeln",
-                sModelname = this.gProcessKey === Constants.PROCESS_PR ? "aprvPRList" : "aprvSESList",
+                sModelname = this.gProcessKey === Constants.PROCESS_PR ? "aprvPQRList" : "aprvQAAList",
                 aList = this.getModel(sModelname).getProperty("/transactionList"),
-                oPayload = this.gProcessKey === Constants.PROCESS_PR ? new Models.prApproveHeader() : new Models.seApproveHeader(),
+                oPayload = this.gProcessKey === Constants.PR ? new Models.prApproveHeader() : new Models.seApproveHeader(),
                 aLineItem = [];   
             
-            var sSystem = this.getBrowserItemSetup(sAagent, "POAPPROVALSYSTEM");
+            var sSystem = this.getBrowserItemSetup(sAagent, "MYSTSREMN");
             oPayload[this.gProcessKey === Constants.PROCESS_PR ? "Uname" : "IUname"] = sAagent;
 
             if (this.getModel("appView").getProperty("/massSelect")) {
@@ -30,7 +30,7 @@
                 oLineItem[sField2] = this.gField2;
                 
                 if (oController.gProcessKey === Constants.PROCESS_SES) {
-                    let aSesList = this.getModel("aprvSESList").getProperty("/"),
+                    let aSesList = this.getModel("aprvQAAList").getProperty("/"),
                         oHeaderItem = aSesList.find(e => e.Lblni === this.gField1 && e.Ebeln === this.gField2);                        
                     oLineItem.Ebelp = this.getModel("approvalDetails").getProperty("/ESesHeader/Ebelp");
                     oLineItem.Frgsx = oHeaderItem ? oHeaderItem.Frgsx : "";
