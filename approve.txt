@@ -1,0 +1,62 @@
+       onApprove: function () {
+            var oEventBus = oController.getOwnerComponent().getEventBus(),
+                sUrl = this.gProcessKey === Constants.PROCESS_PR ? Constants.URL_PRAPPROVE : Constants.URL_SEAPPROVE,
+                sField1 = this.gProcessKey === Constants.PROCESS_PR ? "Banfn" : "Lblni",
+                sField2 = this.gProcessKey === Constants.PROCESS_PR ? "Bnfpo" : "Ebeln",
+                sModelname = this.gProcessKey === Constants.PROCESS_PR ? "aprvPRList" : "aprvSESList",
+                aList = this.getModel(sModelname).getProperty("/transactionList"),
+                oPayload = this.gProcessKey === Constants.PROCESS_PR ? new Models.prApproveHeader() : new Models.seApproveHeader(),
+                aLineItem = [];   
+            
+            var sSystem = this.getBrowserItemSetup(sAagent, "POAPPROVALSYSTEM");
+            oPayload[this.gProcessKey === Constants.PROCESS_PR ? "Uname" : "IUname"] = sAagent;
+
+            if (this.getModel("appView").getProperty("/massSelect")) {
+                aList.forEach(function (item) {                    
+                    let oLineItem = oController.gProcessKey === Constants.PROCESS_PR ? new Models.prApproveLine() : new Models.seApproveLine();
+                    oLineItem[sField1] = item[sField1];                    
+                    oLineItem[sField2] = item[sField2];
+
+                    if (oController.gProcessKey === Constants.PROCESS_SES) {
+                        oLineItem.Ebelp = item.Ebelp;
+                        oLineItem.Frgsx = item.Frgsx;
+                    }
+                    aLineItem.push(oLineItem);
+                });
+                oPayload[this.gProcessKey === Constants.PROCESS_PR ? "NAVPRAPPROVE" : "NAVESSRREL"] = aLineItem; 
+            } else {
+                let oLineItem = this.gProcessKey === Constants.PROCESS_PR ? new Models.prApproveLine() : new Models.seApproveLine();
+                oLineItem[sField1] = this.gField1;
+                oLineItem[sField2] = this.gField2;
+                
+                if (oController.gProcessKey === Constants.PROCESS_SES) {
+                    let aSesList = this.getModel("aprvSESList").getProperty("/"),
+                        oHeaderItem = aSesList.find(e => e.Lblni === this.gField1 && e.Ebeln === this.gField2);                        
+                    oLineItem.Ebelp = this.getModel("approvalDetails").getProperty("/ESesHeader/Ebelp");
+                    oLineItem.Frgsx = oHeaderItem ? oHeaderItem.Frgsx : "";
+                }                      
+                aLineItem.push(oLineItem);              
+                oPayload[this.gProcessKey === Constants.PROCESS_PR ? "NAVPRAPPROVE" : "NAVESSRREL"] = aLineItem;
+            }
+
+            var fnSuccess = function(oData) {
+                    oController.sleep(100).then(() => {  
+                        sap.m.MessageToast.show(
+                            oController.gProcessKey === Constants.PROCESS_PR ? oController.getResourceBundle().getText("itemPrHasBeenApproved") : 
+                                oController.getResourceBundle().getText("itemSesHasBeenApproved"));                         
+                    });                       
+                    if (!oController.getModel("appView").getProperty("/massSelect")) {
+                        oController.getRouter().getTargets().display("welcome");
+                        oEventBus.publish("onRefresh");                        
+                    } else
+                        oController._removedTableItems(sModelname, oPayload, oController.gProcessKey === Constants.PROCESS_PR ? "NAVPRAPPROVE" : "NAVESSRREL");              
+                    // console.log(oData.results);
+                },
+                fnError = function(oError) {
+                    var sError = oController.getErrorMsg(oError);
+                    oController.displayServiceError(sError, null);
+                    console.log(oError);
+                };            
+
+            this.oDataPost(sUrl, fnSuccess, fnError, oPayload, this.getModel("appView"), "/busy", sSystem);
+        },          
